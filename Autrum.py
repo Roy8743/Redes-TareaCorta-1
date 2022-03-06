@@ -128,6 +128,8 @@ def Analizador():
     # Pa
     dataInt2 = []
 
+    savedData = []
+
     while escuchador.is_alive():
 
         if pau == 1:
@@ -152,7 +154,9 @@ def Analizador():
 
         line_frecuencia.set_ydata(dataInt)
         # aca trasnformamos la senal con furier
-        line_furier.set_ydata(np.abs(np.fft.fft(dataInt)) * 2 / (11000 * CHUNK))
+        temp_fft = np.abs(np.fft.fft(dataInt)) * 2 / (11000 * CHUNK)
+        savedData.append([temp_fft,dataInt])
+        line_furier.set_ydata(temp_fft)
 
         fig.canvas.draw()
         fig.canvas.flush_events()
@@ -165,6 +169,13 @@ def Analizador():
             guardarGrabacion(frames)
 
         dataInt2 = dataInt
+    
+    for i in savedData:
+        line_frecuencia.set_ydata(i[1])
+        line_furier.set_ydata(i[0])
+
+        fig.canvas.draw()
+        fig.canvas.flush_events()
 
 
 def guardarGrabacion(frames):
