@@ -9,34 +9,52 @@ import os
 from pynput import keyboard as kb
 import time
 
-
-pausar = 0
+iniciar = 0
 detener = 0
+pau = 0
 
 def pulsa(tecla):
-    if tecla == kb.KeyCode.from_char('p'):
-        print('Se ha presionado la tecla pausar/reanudar')
+    if tecla == kb.KeyCode.from_char('i'):
+        print("Se ha presionado la tecla iniciar grabacion")
+    elif tecla == kb.KeyCode.from_char('p'):
+        print('Se ha presionado la tecla pr/reanudar')
     elif tecla == kb.KeyCode.from_char('q'):
         print("Se ha pulsado la tecla detener")
 
 def suelta(tecla):
-
-    global pausar
     global detener
-    
-    if tecla == kb.KeyCode.from_char('p') and pausar == 0:
-        pausar = 1
-        print('Se ha soltado la tecla pausar/reanudar')
-    
-    elif tecla == kb.KeyCode.from_char('p') and pausar == 1:
-        pausar = 0
+    global iniciar
+    global pau
 
-    elif tecla == kb.KeyCode.from_char('q'):
-        print('Detenido....')
-        detener = 1
-        pausar = 0
+    p = 'p'   #Para pr o reanudar
+    d = 'q'   #Para detener de grabar
+    ini = 'i' #Para iniciar a grabar
 
+    #Se presiona el boton de inicar grabacion
+    if tecla == kb.KeyCode.from_char(ini):
+        #Si ya esta iniciada, no haga nada
+        if iniciar == 1:
+            iniciar == 1
+        #Si no esta iniciada, iniciela
+        elif iniciar == 0:
+            iniciar = 1
 
+    #Se presiona el boton de detener grabacion
+    elif tecla == kb.KeyCode.from_char(d):
+        if iniciar == 1 and pau == 1:
+            pr = 0
+            detener = 1
+
+        elif iniciar == 1 and pau == 0:
+            detener = 1
+
+    #Se presiona el boton de pausa/reanudar
+    elif tecla == kb.KeyCode.from_char(p):
+        if iniciar == 1:
+            if pau == 0:
+                pau = 1
+            elif pau == 1:
+                pau = 0
 
 
 
@@ -63,25 +81,18 @@ p = pa.PyAudio()
 
 #Datos grabados
 
-def consola():
-    os.system("clear")
-    print("CONSOLA")
-    r = input("Ingrese 'p' para reanudar o 'q' para detener: ")
-    if r == 'p':
-        return 1
-    elif r == 'q':
-        return 2
-
-def grabarYgraficar():
+def analizador():
     #Esta funcion me toma una senal por medio del microfono y la mete una parte en un chunk
 
     frames = []  # Esto me ayuda a guardar los cuadros de la grabacion
 
-    global pausar
     global detener
+    global iniciar
+    global pau
 
     escuchador = kb.Listener(pulsa, suelta)
     escuchador.start()
+    #escuchador.join()
     
     #Tomo la senal captada por el microfono, tomo un fracmento.
     toma = p.open(
@@ -121,18 +132,26 @@ def grabarYgraficar():
     #Pa
     dataInt2 = []
 
+
     while escuchador.is_alive():
 
-        if pausar:
-            line_frecuencia.set_ydata(dataInt2)
-            line_furier.set_ydata(np.abs(np.fft.fft(dataInt2))*2/(11000*CHUNK))
-            
-            fig.canvas.draw()
-            fig.canvas.flush_events()
+        if (pau == 1):
+            #Tengo que dejar de tomar el stream, lo cierro de una
+            toma.stop_stream()
+            while pau:
+                line_frecuencia.set_ydata(dataInt2)
+                #aca trasnformamos la senal con furier
+                line_furier.set_ydata(np.abs(np.fft.fft(dataInt))*2/(11000*CHUNK))
+                
+                fig.canvas.draw()
+                fig.canvas.flush_events()
+            #vuelvo a abrir el stram
+            toma = p.open(format = FORMAT,channels = CHANNELS,rate = RATE,input=True,output=True,frames_per_buffer=CHUNK)
             continue
 
         data = toma.read(CHUNK)
-        if pausar == 0:
+
+        if (pau == 0 and iniciar ==1):
             frames.append(data) #Guardo o grabo los cuadros
         dataInt = struct.unpack(str(CHUNK) + 'h', data) #ESto lo hago mas que todo para graficar
 
@@ -168,40 +187,4 @@ def guardarGrabacion(frames):
     gb.close()
 
 
-
-def analizador():
-    os.system("clear")
-    grabarYgraficar()
-"""
-    pausa = 0
-    detener = 0
-
-    os.system("clear")
-    print("CONSOLA")
-    print("1. Pausar")
-    print("2. Reanudar")
-    print("3. Detener")
-    
-    entrada = int(input("Ingrese una opcion: "))
-    print(entrada)
-    if entrada == 1 or 2:
-        if pausa:
-            pausa = 0
-        else:
-            pausa = 1
-    if entrada == 3:
-        if detener:
-            detener = 0
-        else:
-            detener = 1
-            print("Detenido")
-"""
-
-def main():
-    os.system("clear")
-    print("Presione ENTER para comenzar a grabar...")
-    a = input()
-    time.sleep(1)
-    os.system("clear")
-    grabarYgraficar()
-main()
+analizador()
