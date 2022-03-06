@@ -8,10 +8,11 @@ import threading
 import os
 from pynput import keyboard as kb
 import time
+import pickle
 
 iniciar = 0
 detener = 0
-pau = 0
+pausa = 0
 
 
 def pulsa(tecla):
@@ -26,7 +27,7 @@ def pulsa(tecla):
 def suelta(tecla):
     global detener
     global iniciar
-    global pau
+    global pausa
 
     # p = 'p'  # Para pr o reanudar
     # d = 'q'  # Para detener de grabar
@@ -40,20 +41,17 @@ def suelta(tecla):
 
     # Se presiona el boton de detener grabacion
     elif tecla == kb.KeyCode.from_char('d'):
-        if iniciar == 1 and pau == 1:
+        if iniciar == 1 and pausa == 1:
             # pr = 0
             detener = 1
 
-        elif iniciar == 1 and pau == 0:
+        elif iniciar == 1 and pausa == 0:
             detener = 1
 
     # Se presiona el boton de pausa/reanudar
     elif tecla == kb.KeyCode.from_char('p'):
         if iniciar == 1:
-            if pau == 0:
-                pau = 1
-            elif pau == 1:
-                pau = 0
+            pausa = pausa ^ 1
 
 
 # Numero de fotogramas en la cual se dividen las senales
@@ -61,6 +59,7 @@ CHUNK = 2048  # tomo 2048 y proceso, luego tomo otros 2048 y asi sucesivamente
 
 # Me ayuda a establece que tan buena es una muestra de audio (Bit depth)
 FORMAT = pa.paInt16  # El mejor que soporta este equipo es el de 16 y el paALSA (Solo Linux)
+
 # El de 8 bits genera distorsion
 # El de 16bits (96db) es el que mas se utiliza, hace que se escuche mejor
 # El de 24bits es el que se usa actualmente y es mejor.
@@ -85,14 +84,14 @@ def Analizador():
 
     global detener
     global iniciar
-    global pau
+    global pausa
 
     escuchador = kb.Listener(pulsa, suelta)
     escuchador.start()
     # escuchador.join()
 
     # Tomo la senal captada por el microfono, tomo un fracmento.
-    toma = p.open(
+    entradaDeMic = p.open(
         format=FORMAT,
         channels=CHANNELS,
         rate=RATE,
@@ -130,10 +129,10 @@ def Analizador():
 
     while escuchador.is_alive():
 
-        if pau == 1:
+        if pausa == 1:
             # Tengo que dejar de tomar el stream, lo cierro de una
-            toma.stop_stream()
-            while pau:
+            entradaDeMic.stop_stream()
+            while pausa:
                 line_frecuencia.set_ydata(dataInt2)
                 # aca trasnformamos la senal con furier
                 line_furier.set_ydata(np.abs(np.fft.fft(dataInt)) * 2 / (11000 * CHUNK))
@@ -141,12 +140,13 @@ def Analizador():
                 fig.canvas.draw()
                 fig.canvas.flush_events()
             # vuelvo a abrir el stram
-            toma = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, output=True, frames_per_buffer=CHUNK)
+            entradaDeMic = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, output=True,
+                                  frames_per_buffer=CHUNK)
             continue
 
-        data = toma.read(CHUNK)
+        data = entradaDeMic.read(CHUNK)
 
-        if pau == 0 and iniciar == 1:
+        if pausa == 0 and iniciar == 1:
             frames.append(data)  # Guardo o grabo los cuadros
         dataInt = struct.unpack(str(CHUNK) + 'h', data)  # ESto lo hago mas que todo para graficar
 
@@ -158,8 +158,8 @@ def Analizador():
         fig.canvas.flush_events()
 
         if detener == 1:
-            toma.stop_stream()
-            toma.close()
+            entradaDeMic.stop_stream()
+            entradaDeMic.close()
             p.terminate()
             escuchador.stop()
             guardarGrabacion(frames)
