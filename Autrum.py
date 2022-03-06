@@ -81,7 +81,7 @@ p = pa.PyAudio()
 
 #Datos grabados
 
-def analizador():
+def Analizador():
     #Esta funcion me toma una senal por medio del microfono y la mete una parte en un chunk
 
     frames = []  # Esto me ayuda a guardar los cuadros de la grabacion
@@ -187,4 +187,11 @@ def guardarGrabacion(frames):
     gb.close()
 
 
-analizador()
+Analizador()
+
+
+
+
+def Reproductor():
+    print("jiji")
+Reproductor()
