@@ -9,10 +9,12 @@ import os
 from pynput import keyboard as kb
 import time
 import pickle
+import math
 
 iniciar = 0
 detener = 0
 pausa = 0
+savedData = []
 
 
 def pulsa(tecla):
@@ -76,6 +78,32 @@ RATE = 44100  # (En HZ) Esta da una buena calidad, es la que normalemnte se usa 
 # Creacion de clase de PyAudio
 p = pa.PyAudio()
 
+def test(filename):
+    global p
+    p = pa.PyAudio()
+    dbfile = open(filename, 'rb')     
+    db = pickle.load(dbfile)
+    dbfile.close()
+
+    # Open a .Stream object to write the WAV file to
+    # 'output = True' indicates that the sound will be played rather than recorded
+    stream = p.open(format = FORMAT, channels = CHANNELS, rate = RATE, output = True)
+
+    # Play the sound by writing the audio data to the stream
+    data = db[1]
+    i=1
+    print(len(data))
+    while i <= math.ceil(len(data)/CHUNK):
+        min_i = (i-1)*CHUNK
+        max_i = i * CHUNK
+        if max_i > len(data)-1:
+            max_i = len(data)-1
+        stream.write(data)
+        i+=1
+
+    # Close and terminate the stream
+    stream.close()
+    p.terminate()
 
 def Analizador():
     # Esta funcion me toma una senal por medio del microfono y la mete una parte en un chunk
@@ -85,6 +113,7 @@ def Analizador():
     global detener
     global iniciar
     global pausa
+    global savedData
 
     escuchador = kb.Listener(pulsa, suelta)
     escuchador.start()
@@ -127,7 +156,7 @@ def Analizador():
     # Pa
     dataInt2 = []
 
-    savedData = []
+    
 
     while escuchador.is_alive():
 
@@ -155,7 +184,8 @@ def Analizador():
         line_frecuencia.set_ydata(dataInt)
         # aca trasnformamos la senal con furier
         temp_fft = np.abs(np.fft.fft(dataInt)) * 2 / (11000 * CHUNK)
-        savedData.append([temp_fft,dataInt])
+        if iniciar:
+            savedData.append([temp_fft,dataInt])
         line_furier.set_ydata(temp_fft)
 
         fig.canvas.draw()
@@ -169,19 +199,19 @@ def Analizador():
             guardarGrabacion(frames)
 
         dataInt2 = dataInt
-    
+    # test("test.atm")
     for i in savedData:
         line_frecuencia.set_ydata(i[1])
         line_furier.set_ydata(i[0])
 
         fig.canvas.draw()
         fig.canvas.flush_events()
-
-
+    
 def guardarGrabacion(frames):
     # Guardo el audio grabado
     # os.system("clear")
     n = input("Ingrese el nombre del archivo a guardar: ")
+    dbfile = open(n + '.atm', 'ab')
     n = n + '.wav'
     gb = wave.open(n, 'wb')
     gb.setnchannels(CHANNELS)
@@ -190,12 +220,14 @@ def guardarGrabacion(frames):
     gb.writeframes(b''.join(frames))
     gb.close()
 
+    db = [savedData,frames]
+    pickle.dump(db, dbfile)
+
 
 Analizador()
 
-
 def Reproductor():
-    print("jiji")
+    print("jijija")
 
 
 Reproductor()
