@@ -108,8 +108,8 @@ def Analizador():
 
     frames = []  # Esto me ayuda a guardar los cuadros de la grabacion
 
-    dataInt = []
-    dataInt2 = []
+    dataOrginal = []
+    dataFourier = []
 
     global detener
     global iniciar
@@ -133,22 +133,22 @@ def Analizador():
 
     # Me devuelve una lista dentro de un intervalo
     x_frecuencia = np.arange(0, 2 * chunk_size, 2)  # [0,2,4,6,....,2048]
-    x_furier = np.linspace(0, RATE, chunk_size)  # [0,1024,2048,....,RATE]
+    x_fourier = np.linspace(0, RATE, chunk_size)  # [0,1024,2048,....,RATE]
 
     # Coloco titulo a cada uno
     ax1.set_title('Frecuencia')
-    ax2.set_title('Furier')
+    ax2.set_title('Fourier')
     # Establezco los limites de cada grafico
     ax1.set_xlim(0, chunk_size)
     ax1.set_ylim(-40000, 40000)
 
     ax2.set_xlim(20, RATE + 200)
-    # La salida de los calculos de furier varian de 0 a 1, meto -1 para verla mejor
+    # La salida de los calculos de fourier varian de 0 a 1, meto -1 para verla mejor
     ax2.set_ylim(0, 2)
 
     line_frecuencia, = ax1.plot(x_frecuencia, np.random.rand(chunk_size), color='r')
     # La representacion de frecuencia siempre se hace en graficos semilogaritmicos
-    line_furier, = ax2.semilogx(x_furier, np.random.rand(chunk_size), color='b')
+    line_fourier, = ax2.semilogx(x_fourier, np.random.rand(chunk_size), color='b')
 
     fig.show()
 
@@ -158,13 +158,13 @@ def Analizador():
             # Tengo que dejar de tomar el stream, lo cierro de una
             entradaDeMic.stop_stream()
             while pausa:
-                line_frecuencia.set_ydata(dataInt2)
-                # aca trasnformamos la senal con furier
-                line_furier.set_ydata(np.abs(np.fft.fft(dataInt)) * 2 / (11000 * chunk_size))
+                line_frecuencia.set_ydata(dataOrginal)
+                # aca trasnformamos la senal con fourier
+                line_fourier.set_ydata(np.abs(np.fft.fft(dataOrginal)) * 2 / (11000 * chunk_size))
 
                 fig.canvas.draw()
                 fig.canvas.flush_events()
-            # vuelvo a abrir el stram
+            # vuelvo a abrir el stream
             entradaDeMic = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, output=True,
                                   frames_per_buffer=chunk_size)
             continue
@@ -173,15 +173,17 @@ def Analizador():
 
         if iniciar:
             frames.append(data)  # Guardo o grabo los cuadros
-        dataInt = struct.unpack(str(chunk_size) + 'h', data)
+        dataOrginal = struct.unpack(str(chunk_size) + 'h', data)
         # Se traducen los bits a datos interpretados dado el formato del parametro 1
 
-        line_frecuencia.set_ydata(dataInt)
-        # aca trasnformamos la senal con furier
-        temp_fft = np.abs(np.fft.fft(dataInt)) * 2 / (11000 * chunk_size)
+        line_frecuencia.set_ydata(dataOrginal)
+        dataFourier = dataOrginal
+
+        # aca trasnformamos la senal con fourier
+        temp_fft = np.abs(np.fft.fft(dataFourier)) * 2 / (11000 * chunk_size)
         if iniciar:
-            savedData.append([temp_fft, dataInt])
-        line_furier.set_ydata(temp_fft)
+            savedData.append([temp_fft, dataFourier])
+        line_fourier.set_ydata(temp_fft)
 
         fig.canvas.draw()
         fig.canvas.flush_events()
@@ -193,11 +195,10 @@ def Analizador():
             escuchador.stop()
             guardarGrabacion(frames)
 
-        dataInt2 = dataInt
     # test("test.atm")
     for i in savedData:
         line_frecuencia.set_ydata(i[1])
-        line_furier.set_ydata(i[0])
+        line_fourier.set_ydata(i[0])
 
         fig.canvas.draw()
         fig.canvas.flush_events()
