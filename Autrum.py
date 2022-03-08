@@ -177,13 +177,12 @@ def Analizador():
         # Se traducen los bits a datos interpretados dado el formato del parametro 1
 
         line_frecuencia.set_ydata(dataOrginal)
-        dataFourier = dataOrginal
 
         # aca trasnformamos la senal con fourier
-        temp_fft = np.abs(np.fft.fft(dataFourier)) * 2 / (11000 * chunk_size)
+        temp_ft = np.abs(np.fft.fft(dataOrginal)) * 2 / (11000 * chunk_size)
         if iniciar:
-            savedData.append([temp_fft, dataFourier])
-        line_fourier.set_ydata(temp_fft)
+            savedData.append([temp_ft, dataOrginal])
+        line_fourier.set_ydata(temp_ft)
 
         fig.canvas.draw()
         fig.canvas.flush_events()
