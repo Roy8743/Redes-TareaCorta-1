@@ -75,35 +75,6 @@ def suelta(tecla):
         if iniciar == 1:
             pausa = pausa ^ 1
 
-
-def test(filename):
-    global p
-    p = pa.PyAudio()
-    dbfile = open(filename, 'rb')
-    db = pickle.load(dbfile)
-    dbfile.close()
-
-    # Open a .Stream object to write the WAV file to
-    # 'output = True' indicates that the sound will be played rather than recorded
-    stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, output=True)
-
-    # Play the sound by writing the audio data to the stream
-    data = db[1]
-    i = 1
-    print(len(data))
-    while i <= math.ceil(len(data) / chunk_size):
-        min_i = (i - 1) * chunk_size
-        max_i = i * chunk_size
-        if max_i > len(data) - 1:
-            max_i = len(data) - 1
-        stream.write(data)
-        i += 1
-
-    # Close and terminate the stream
-    stream.close()
-    p.terminate()
-
-
 def Analizador():
     # Esta funcion me toma una senal por medio del microfono y la mete una parte en un chunk
 
@@ -194,8 +165,6 @@ def Analizador():
             p.terminate()
             escuchador.stop()
             guardarGrabacion(frames)
-
-    # test("test.atm")
 
 
 def guardarGrabacion(frames):
