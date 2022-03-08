@@ -15,6 +15,7 @@ iniciar = 0
 detener = 0
 pausa = 0
 savedData = []
+filename = ""
 
 # Numero de fotogramas en la cual se dividen las senales
 chunk_size = 2048  # tomo 2048 y proceso, luego tomo otros 2048 y asi sucesivamente
@@ -195,19 +196,15 @@ def Analizador():
 
         dataInt2 = dataInt
     # test("test.atm")
-    for i in savedData:
-        line_frecuencia.set_ydata(i[1])
-        line_furier.set_ydata(i[0])
-
-        fig.canvas.draw()
-        fig.canvas.flush_events()
 
 
 def guardarGrabacion(frames):
     # Guardo el audio grabado
     # os.system("clear")
+    global filename
     n = input("Ingrese el nombre del archivo a guardar: ")
-    dbfile = open(n + '.atm', 'ab')
+    filename = n + ".atm"
+    dbfile = open(filename, 'ab')
     n = n + '.wav'
     gb = wave.open(n, 'wb')
     gb.setnchannels(CHANNELS)
@@ -215,8 +212,9 @@ def guardarGrabacion(frames):
     gb.setframerate(RATE)
     gb.writeframes(b''.join(frames))
     gb.close()
+    plt.close()
 
-    db = [savedData, frames]
+    db = [savedData]
     pickle.dump(db, dbfile)
 
 
@@ -224,6 +222,39 @@ Analizador()
 
 
 def Reproductor():
+    dbfile = open(filename, 'rb')
+    db = pickle.load(dbfile)
+    dbfile.close()
+
+    # Basicamente son dos graficos diferentes, el 2 significa 2 filas. Fig es la pantalla donde se encuentran.
+    fig2, (ax1, ax2) = plt.subplots(2)
+    fig2.canvas.flush_events()
+
+    # Me devuelve una lista dentro de un intervalo
+    x_frecuencia = np.arange(0, 2 * chunk_size, 2)  # [0,2,4,6,....,2048]
+    x_furier = np.linspace(0, RATE, chunk_size)  # [0,1024,2048,....,RATE]
+
+    # Coloco titulo a cada uno
+    ax1.set_title('Frecuencia')
+    ax2.set_title('Furier')
+    # Establezco los limites de cada grafico
+    ax1.set_xlim(0, chunk_size)
+    ax1.set_ylim(-40000, 40000)
+
+    ax2.set_xlim(20, RATE + 200)
+    # La salida de los calculos de furier varian de 0 a 1, meto -1 para verla mejor
+    ax2.set_ylim(0, 2)
+
+    line_frecuencia, = ax1.plot(x_frecuencia, np.random.rand(chunk_size), color='r')
+    line_furier, = ax2.semilogx(x_furier, np.random.rand(chunk_size), color='b')
+
+    fig2.show()
+    for i in db[0]:
+        line_frecuencia.set_ydata(i[1])
+        line_furier.set_ydata(i[0])
+
+        fig2.canvas.draw()
+        fig2.canvas.flush_events()
     print("jijija")
 
 
