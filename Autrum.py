@@ -17,7 +17,7 @@ pausa = 0
 savedData = []
 
 # Numero de fotogramas en la cual se dividen las senales
-CHUNK = 2048  # tomo 2048 y proceso, luego tomo otros 2048 y asi sucesivamente
+chunk_size = 2048  # tomo 2048 y proceso, luego tomo otros 2048 y asi sucesivamente
 
 # Me ayuda a establece que tan buena es una muestra de audio (Bit depth)
 FORMAT = pa.paInt16  # El mejor que soporta este equipo es el de 16 y el paALSA (Solo Linux)
@@ -90,9 +90,9 @@ def test(filename):
     data = db[1]
     i = 1
     print(len(data))
-    while i <= math.ceil(len(data) / CHUNK):
-        min_i = (i - 1) * CHUNK
-        max_i = i * CHUNK
+    while i <= math.ceil(len(data) / chunk_size):
+        min_i = (i - 1) * chunk_size
+        max_i = i * chunk_size
         if max_i > len(data) - 1:
             max_i = len(data) - 1
         stream.write(data)
@@ -126,59 +126,59 @@ def Analizador():
         rate=RATE,
         input=True,
         output=True,
-        frames_per_buffer=CHUNK)
+        frames_per_buffer=chunk_size)
 
     # Basicamente son dos graficos diferentes, el 2 significa 2 filas. Fig es la pantalla donde se encuentran.
     fig, (ax1, ax2) = plt.subplots(2)
 
     # Me devuelve una lista dentro de un intervalo
-    x_frecuencia = np.arange(0, 2 * CHUNK, 2)  # [0,2,4,6,....,2048]
-    x_furier = np.linspace(0, RATE, CHUNK)  # [0,1024,2048,....,RATE]
+    x_frecuencia = np.arange(0, 2 * chunk_size, 2)  # [0,2,4,6,....,2048]
+    x_furier = np.linspace(0, RATE, chunk_size)  # [0,1024,2048,....,RATE]
 
     # Coloco titulo a cada uno
     ax1.set_title('Frecuencia')
     ax2.set_title('Furier')
-
     # Establezco los limites de cada grafico
-    ax1.set_xlim(0, CHUNK)
+    ax1.set_xlim(0, chunk_size)
     ax1.set_ylim(-40000, 40000)
 
     ax2.set_xlim(20, RATE + 200)
     # La salida de los calculos de furier varian de 0 a 1, meto -1 para verla mejor
     ax2.set_ylim(0, 2)
 
-    line_frecuencia, = ax1.plot(x_frecuencia, np.random.rand(CHUNK), 'r')
+    line_frecuencia, = ax1.plot(x_frecuencia, np.random.rand(chunk_size), color='r')
     # La representacion de frecuencia siempre se hace en graficos semilogaritmicos
-    line_furier, = ax2.semilogx(x_furier, np.random.rand(CHUNK), 'b')
+    line_furier, = ax2.semilogx(x_furier, np.random.rand(chunk_size), color='b')
 
     fig.show()
 
     while escuchador.is_alive():
 
-        if pausa == 1:
+        if pausa:
             # Tengo que dejar de tomar el stream, lo cierro de una
             entradaDeMic.stop_stream()
             while pausa:
                 line_frecuencia.set_ydata(dataInt2)
                 # aca trasnformamos la senal con furier
-                line_furier.set_ydata(np.abs(np.fft.fft(dataInt)) * 2 / (11000 * CHUNK))
+                line_furier.set_ydata(np.abs(np.fft.fft(dataInt)) * 2 / (11000 * chunk_size))
 
                 fig.canvas.draw()
                 fig.canvas.flush_events()
             # vuelvo a abrir el stram
             entradaDeMic = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, output=True,
-                                  frames_per_buffer=CHUNK)
+                                  frames_per_buffer=chunk_size)
             continue
 
-        data = entradaDeMic.read(CHUNK)
+        data = entradaDeMic.read(chunk_size)
 
-        if pausa == 0 and iniciar == 1:
+        if iniciar:
             frames.append(data)  # Guardo o grabo los cuadros
-        dataInt = struct.unpack(str(CHUNK) + 'h', data)  # ESto lo hago mas que todo para graficar
+        dataInt = struct.unpack(str(chunk_size) + 'h', data)
+        # Se traducen los bits a datos interpretados dado el formato del parametro 1
 
         line_frecuencia.set_ydata(dataInt)
         # aca trasnformamos la senal con furier
-        temp_fft = np.abs(np.fft.fft(dataInt)) * 2 / (11000 * CHUNK)
+        temp_fft = np.abs(np.fft.fft(dataInt)) * 2 / (11000 * chunk_size)
         if iniciar:
             savedData.append([temp_fft, dataInt])
         line_furier.set_ydata(temp_fft)
@@ -186,7 +186,7 @@ def Analizador():
         fig.canvas.draw()
         fig.canvas.flush_events()
 
-        if detener == 1:
+        if detener:
             entradaDeMic.stop_stream()
             entradaDeMic.close()
             p.terminate()
