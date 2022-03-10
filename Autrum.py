@@ -10,12 +10,17 @@ from pynput import keyboard as kb
 import time
 import pickle
 import math
+import threading
 
 iniciar = 0
 detener = 0
 pausa = 0
+finalizar = False
 savedData = []
-filename = ""
+
+escuchador = None
+seleccion = -1
+pausarListener = False
 
 # Numero de fotogramas en la cual se dividen las senales
 chunk_size = 2048  # tomo 2048 y proceso, luego tomo otros 2048 y asi sucesivamente
@@ -36,18 +41,28 @@ RATE = 44100  # (En HZ) Esta da una buena calidad, es la que normalemnte se usa 
 # La de 48000 da una calidad casi de estudio, (muy buena) pero depende del equipo.
 
 
-# Creacion de clase de PyAudio
-p = pa.PyAudio()
-
-
 def pulsa(tecla):
+    global detener
+    global iniciar
+    global pausa
     if tecla == kb.KeyCode.from_char('i'):
         print("Se ha presionado la tecla iniciar grabacion")
-    elif tecla == kb.KeyCode.from_char('p'):
-        print('Se ha presionado la tecla pr/reanudar')
-    elif tecla == kb.KeyCode.from_char('q'):
-        print("Se ha pulsado la tecla detener")
+        # Si no esta iniciada, iniciela
+        if iniciar == 0:
+            iniciar = 1
 
+    # Se presiona el boton de detener grabacion
+    elif tecla == kb.KeyCode.from_char('d'):
+        print('Se ha presionado la tecla detener')
+        if iniciar == 1:
+            # pr = 0
+            detener = 1
+
+    # Se presiona el boton de pausa/reanudar
+    elif tecla == kb.KeyCode.from_char('p'):
+        print("Se ha pulsado la tecla reanudar/pausar")
+        if iniciar == 1:
+            pausa = pausa ^ 1
 
 def suelta(tecla):
     global detener
@@ -75,7 +90,41 @@ def suelta(tecla):
         if iniciar == 1:
             pausa = pausa ^ 1
 
+def menuPulsa(tecla):
+    if pausarListener:
+        return
+    if tecla == kb.KeyCode.from_char('1'):
+        print("Iniciando analizador")
+    elif tecla == kb.KeyCode.from_char('2'):
+        print('Iniciando reproductor')
+    elif tecla == kb.KeyCode.from_char('3'):
+        print("Cerrando programa")
+
+def menuSuelta(tecla):
+    global finalizar
+    global seleccion
+    if pausarListener:
+        return
+    # Se presiona el boton del analizador
+    if tecla == kb.KeyCode.from_char('1'):
+        if seleccion < 0:
+            seleccion = 0
+
+    # Se presiona el boton del reproductor
+    elif tecla == kb.KeyCode.from_char('2'):
+        if seleccion < 0:
+            seleccion = 1
+        
+
+    # Se presiona el boton de cerrar
+    elif tecla == kb.KeyCode.from_char('3'):
+        if seleccion < 0:
+            seleccion = 2
+
 def Analizador():
+    filename = None
+    # Crea la interfaz de PyAudio
+    p = pa.PyAudio()
     # Esta funcion me toma una senal por medio del microfono y la mete una parte en un chunk
 
     frames = []  # Esto me ayuda a guardar los cuadros de la grabacion
@@ -88,7 +137,7 @@ def Analizador():
     global pausa
     global savedData
 
-    escuchador = kb.Listener(pulsa, suelta)
+    escuchador = kb.Listener(pulsa)
     escuchador.start()
 
     # Tomo la senal captada por el microfono, tomo un fracmento.
@@ -162,35 +211,58 @@ def Analizador():
         if detener:
             entradaDeMic.stop_stream()
             entradaDeMic.close()
-            p.terminate()
+            #p.terminate()
             escuchador.stop()
-            guardarGrabacion(frames)
+            filename = guardar(frames)
+            plt.close()
+            fig.canvas.flush_events()
+            plt.close()
+            detener = 0
+    return filename
 
 
-def guardarGrabacion(frames):
-    # Guardo el audio grabado
-    # os.system("clear")
-    global filename
+def guardar(frames):
+    #Pido el nombre de archivo
+
     n = input("Ingrese el nombre del archivo a guardar: ")
+    #le agrego la extensión atm
     filename = n + ".atm"
+
+    #creo el archivo
     dbfile = open(filename, 'ab')
-    n = n + '.wav'
-    gb = wave.open(n, 'wb')
-    gb.setnchannels(CHANNELS)
-    gb.setsampwidth(p.get_sample_size(FORMAT))
-    gb.setframerate(RATE)
-    gb.writeframes(b''.join(frames))
-    gb.close()
-    plt.close()
 
-    db = [savedData]
+    #Elimino datos del archivo si existe el archivo de antemano
+    dbfile.seek(0)
+    dbfile.truncate()
+
+    #Escribo los datos de los graficos y el audio en el archivo
+    db = [savedData,frames]
     pickle.dump(db, dbfile)
+    return filename
 
+def playFrames(frames):
+    # Crea la interfaz de PyAudio
+    p = pa.PyAudio()
+    entradaDeMic = p.open(
+        format=FORMAT,
+        channels=CHANNELS,
+        rate=RATE,
+        output=True)
 
-Analizador()
+    i = 1
+    while i <= (math.ceil(len(frames)/chunk_size)):
+        max_i = i * chunk_size
+        min_i = (i-1) * chunk_size
+        entradaDeMic.write(b''.join(frames[min_i:max_i]))
+        i+=1
 
+    entradaDeMic.stop_stream()
+    entradaDeMic.close()
+    p.terminate()
 
-def Reproductor():
+def Reproductor(filename):
+    print("Reproduciendo")
+    # Abre el archivo .atm y carga los datos
     dbfile = open(filename, 'rb')
     db = pickle.load(dbfile)
     dbfile.close()
@@ -214,17 +286,58 @@ def Reproductor():
     # La salida de los calculos de furier varian de 0 a 1, meto -1 para verla mejor
     ax2.set_ylim(0, 2)
 
+    # Genera las lineas del grafico
     line_frecuencia, = ax1.plot(x_frecuencia, np.random.rand(chunk_size), color='r')
     line_furier, = ax2.semilogx(x_furier, np.random.rand(chunk_size), color='b')
 
     fig2.show()
+
+    # Genera un hilo aparte para reproducir el sonido y así coordinar el sonido con los datos del grafico guardados
+    hiloPlay = threading.Thread(target=playFrames,
+                        args=(db[1],))
+    hiloPlay.start()
     for i in db[0]:
         line_frecuencia.set_ydata(i[1])
         line_furier.set_ydata(i[0])
 
         fig2.canvas.draw()
         fig2.canvas.flush_events()
-    print("jijija")
+    plt.close()
+    fig2.canvas.flush_events()
+    plt.close()
 
+def printMenu():
+    print("\n\n\nDigite la opción a utilizar:\n" +
+                    "1 - Analizador\n" +
+                    "2 - Reproductor\n" +
+                    "3 - Cerrar\n")
 
-Reproductor()
+def main():
+    global seleccion
+    global pausarListener
+    while not finalizar:
+        escuchador = kb.Listener(menuPulsa, menuSuelta)
+        escuchador.start()
+        printMenu()
+
+        while escuchador.is_alive():
+            if seleccion == 0:
+                pausarListener = True
+                Analizador()
+                pausarListener = False
+                seleccion = -1
+                printMenu()
+            if seleccion == 1:
+                pausarListener = True
+                filename = input("Ingrese el nombre del archivo a reproducir(sin .atm):") + ".atm"
+                Reproductor(filename)
+                pausarListener = False
+                seleccion = -1
+                printMenu()
+            if seleccion == 2:
+                escuchador.stop()
+                return
+    
+main()
+#filename = Analizador()
+#Reproductor(filename)
