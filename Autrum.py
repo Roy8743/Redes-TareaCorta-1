@@ -38,6 +38,8 @@ CHANNELS = 1  # Se usa uno ya que esto depende de la cantidad de entradas de aud
 
 # El RATE es la frecuencia de muestreo, o sea, el numero de muestras por una unidad de tiempo
 RATE = 44100  # (En HZ) Esta da una buena calidad, es la que normalemnte se usa (estandar)
+
+
 # La de 48000 da una calidad casi de estudio, (muy buena) pero depende del equipo.
 
 
@@ -63,6 +65,7 @@ def pulsa(tecla):
         print("Se ha pulsado la tecla reanudar/pausar")
         if iniciar == 1:
             pausa = pausa ^ 1
+
 
 def suelta(tecla):
     global detener
@@ -90,6 +93,7 @@ def suelta(tecla):
         if iniciar == 1:
             pausa = pausa ^ 1
 
+
 def menuPulsa(tecla):
     if pausarListener:
         return
@@ -99,6 +103,7 @@ def menuPulsa(tecla):
         print('Iniciando reproductor')
     elif tecla == kb.KeyCode.from_char('3'):
         print("Cerrando programa")
+
 
 def menuSuelta(tecla):
     global finalizar
@@ -114,12 +119,13 @@ def menuSuelta(tecla):
     elif tecla == kb.KeyCode.from_char('2'):
         if seleccion < 0:
             seleccion = 1
-        
+
 
     # Se presiona el boton de cerrar
     elif tecla == kb.KeyCode.from_char('3'):
         if seleccion < 0:
             seleccion = 2
+
 
 def Analizador():
     filename = None
@@ -149,22 +155,22 @@ def Analizador():
         output=True,
         frames_per_buffer=chunk_size)
 
-    # Basicamente son dos graficos diferentes, el 2 significa 2 filas. Fig es la pantalla donde se encuentran.
+    # Se generan los dos graficos para las ondas de sonido y la transformacion de fourier.
+    # Fig es la pantalla donde se encuentran.
     fig, (ax1, ax2) = plt.subplots(2)
 
-    # Me devuelve una lista dentro de un intervalo
+    # Se establecen los valores y el espacio para el plano x
     x_frecuencia = np.arange(0, 2 * chunk_size, 2)  # [0,2,4,6,....,2048]
     x_fourier = np.linspace(0, RATE, chunk_size)  # [0,1024,2048,....,RATE]
 
-    # Coloco titulo a cada uno
-    ax1.set_title('Frecuencia')
+    # Se coloca titulo a cada grafico
+    ax1.set_title('Ondas de Sonido')
     ax2.set_title('Fourier')
-    # Establezco los limites de cada grafico
+    # Se establecen los limites de cada grafico
     ax1.set_xlim(0, chunk_size)
     ax1.set_ylim(-40000, 40000)
-
+    # Se establecen los tamaños de y para ambos planos en los graficos
     ax2.set_xlim(20, RATE + 200)
-    # La salida de los calculos de fourier varian de 0 a 1, meto -1 para verla mejor
     ax2.set_ylim(0, 2)
 
     line_frecuencia, = ax1.plot(x_frecuencia, np.random.rand(chunk_size), color='r')
@@ -176,30 +182,30 @@ def Analizador():
     while escuchador.is_alive():
 
         if pausa:
-            # Tengo que dejar de tomar el stream, lo cierro de una
+            # Se detiene la lectura de audio
             entradaDeMic.stop_stream()
             while pausa:
                 line_frecuencia.set_ydata(dataOrginal)
-                # aca trasnformamos la senal con fourier
+                # Se transforma y dibujo el ultimo frame
                 line_fourier.set_ydata(np.abs(np.fft.fft(dataOrginal)) * 2 / (11000 * chunk_size))
 
                 fig.canvas.draw()
                 fig.canvas.flush_events()
-            # vuelvo a abrir el stream
+            # Para seguir se renueva el stream
             entradaDeMic = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, output=True,
                                   frames_per_buffer=chunk_size)
             continue
-
+        # La entrada del audio se lee en 'pedazos'
         data = entradaDeMic.read(chunk_size)
 
         if iniciar:
-            frames.append(data)  # Guardo o grabo los cuadros
+            frames.append(data)  # Se guardan los cuadros grabados
         dataOrginal = struct.unpack(str(chunk_size) + 'h', data)
         # Se traducen los bits a datos interpretados dado el formato del parametro 1
 
         line_frecuencia.set_ydata(dataOrginal)
 
-        # aca trasnformamos la senal con fourier
+        # Se realiza una transformacion de fourier sobre la data original para graficarla y guardarla
         temp_ft = np.abs(np.fft.fft(dataOrginal)) * 2 / (11000 * chunk_size)
         if iniciar:
             savedData.append([temp_ft, dataOrginal])
@@ -209,9 +215,9 @@ def Analizador():
         fig.canvas.flush_events()
 
         if detener:
+            # Se detiene el grabado se limpian los eventos y se cierra la ventana
             entradaDeMic.stop_stream()
             entradaDeMic.close()
-            #p.terminate()
             escuchador.stop()
             filename = guardar(frames)
             plt.close()
@@ -222,23 +228,20 @@ def Analizador():
 
 
 def guardar(frames):
-    #Pido el nombre de archivo
-
     n = input("Ingrese el nombre del archivo a guardar: ")
-    #le agrego la extensión atm
+    # Se agrega la extensión atm
     filename = n + ".atm"
-
-    #creo el archivo
     dbfile = open(filename, 'ab')
 
-    #Elimino datos del archivo si existe el archivo de antemano
+    # Se limpian los datos del archivo si este ya existe
     dbfile.seek(0)
     dbfile.truncate()
 
-    #Escribo los datos de los graficos y el audio en el archivo
-    db = [savedData,frames]
+    # Se escriben los datos de la grabacion y de los graficos
+    db = [savedData, frames]
     pickle.dump(db, dbfile)
     return filename
+
 
 def playFrames(frames):
     # Crea la interfaz de PyAudio
@@ -250,15 +253,16 @@ def playFrames(frames):
         output=True)
 
     i = 1
-    while i <= (math.ceil(len(frames)/chunk_size)):
+    while i <= (math.ceil(len(frames) / chunk_size)):
         max_i = i * chunk_size
-        min_i = (i-1) * chunk_size
+        min_i = (i - 1) * chunk_size
         entradaDeMic.write(b''.join(frames[min_i:max_i]))
-        i+=1
+        i += 1
 
     entradaDeMic.stop_stream()
     entradaDeMic.close()
     p.terminate()
+
 
 def Reproductor(filename):
     print("Reproduciendo")
@@ -294,7 +298,7 @@ def Reproductor(filename):
 
     # Genera un hilo aparte para reproducir el sonido y así coordinar el sonido con los datos del grafico guardados
     hiloPlay = threading.Thread(target=playFrames,
-                        args=(db[1],))
+                                args=(db[1],))
     hiloPlay.start()
     for i in db[0]:
         line_frecuencia.set_ydata(i[1])
@@ -306,11 +310,13 @@ def Reproductor(filename):
     fig2.canvas.flush_events()
     plt.close()
 
+
 def printMenu():
     print("\n\n\nDigite la opción a utilizar:\n" +
-                    "1 - Analizador\n" +
-                    "2 - Reproductor\n" +
-                    "3 - Cerrar\n")
+          "1 - Analizador\n" +
+          "2 - Reproductor\n" +
+          "3 - Cerrar\n")
+
 
 def main():
     global seleccion
@@ -337,7 +343,8 @@ def main():
             if seleccion == 2:
                 escuchador.stop()
                 return
-    
+
+
 main()
-#filename = Analizador()
-#Reproductor(filename)
+# filename = Analizador()
+# Reproductor(filename)
