@@ -296,12 +296,14 @@ def Reproductor(filename):
     hiloPlay = threading.Thread(target=playFrames,
                         args=(db[1],))
     hiloPlay.start()
+    # Dibuja el grafico con los datos cargados del archivo
     for i in db[0]:
         line_frecuencia.set_ydata(i[1])
         line_furier.set_ydata(i[0])
 
         fig2.canvas.draw()
         fig2.canvas.flush_events()
+    # Cierra la ventana, por un error de matplot se necesita hacer flush para que el evento de close no se quede en cola
     plt.close()
     fig2.canvas.flush_events()
     plt.close()
@@ -316,25 +318,33 @@ def main():
     global seleccion
     global pausarListener
     while not finalizar:
+        # Crea un Listener para las opciones de teclado
         escuchador = kb.Listener(menuPulsa, menuSuelta)
         escuchador.start()
+        # Imprime el menu de opciones
         printMenu()
 
         while escuchador.is_alive():
+            # Si la selección fue el Analizador
             if seleccion == 0:
+                # Pausa el Listener del menu para no interferir con el las entradas de teclado del Analizador
                 pausarListener = True
                 Analizador()
                 pausarListener = False
                 seleccion = -1
                 printMenu()
+            # Si la selección fue el Reproductor
             if seleccion == 1:
+                # Pausa el Listener del menu para no interferir con el las entradas de teclado del Reproductor
                 pausarListener = True
                 filename = input("Ingrese el nombre del archivo a reproducir(sin .atm):") + ".atm"
                 Reproductor(filename)
                 pausarListener = False
                 seleccion = -1
                 printMenu()
+            # Si la selección fue salir
             if seleccion == 2:
+                # Para el Listener de menu y sale de la aplicación
                 escuchador.stop()
                 return
     
