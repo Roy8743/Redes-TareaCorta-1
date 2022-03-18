@@ -58,7 +58,8 @@ Como se observa en la imagen anterior, podemos elegir la opción de analizar pre
 
 #### Analizador
 
-Cuando se está graficando ya sea al momento de analizar o reproducir, podemos interactuar con el programa con las siguientes teclas: 
+Cuando se está graficando ya sea al momento de analizar o reproducir, podemos interactuar con el programa con las siguientes teclas:
+
 - Tecla i: Inicia la grabación en el modo de Analizador.
 
 - Tecla P: Pausa la grabación o la reproducción.
@@ -66,11 +67,12 @@ Cuando se está graficando ya sea al momento de analizar o reproducir, podemos i
 - Tecla D: Detiene la grabación.
 
 # Referencias:
+
 1. Farhan, M., 2020. Latest Spectrum Analyser Using Python | Part-2. Deep Focus. Disponible en: [https://fazals.ddns.net/spectrum-analyser-part-2](https://fazals.ddns.net/spectrum-analyser-part-2)
 2. De Langen, J., 2020. Playing and Recording Sound in Python – Real Python. Realpython.com. Disponible en: [https://realpython.com/playing-and-recording-sound-python](https://realpython.com/playing-and-recording-sound-python)
 3. Código Pitón. 2022. Cómo Detectar la Pulsación de una Tecla en Python - Código Pitón. Disponible en: [https://www.codigopiton.com/detectar-pulsacion-de-tecla-en-python](https://www.codigopiton.com/detectar-pulsacion-de-tecla-en-python)
 
 
 >imagen de solicitud de nombre del archivo
->La anterior imagen muestra un espacio para poder ingresar el nombre del archivo Autrum, se ingresa el nombre luego s
->si queremos otra imagen del archivo reproduciendose
+
+>La anterior imagen muestra un espacio para poder ingresar el nombre del archivo Autrum, se ingresa el nombre luego se presiona ENTER y automáticamente se guarda.
