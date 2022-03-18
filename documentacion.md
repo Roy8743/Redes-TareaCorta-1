@@ -1,12 +1,73 @@
-# ¿Porqué las voces del integrante 1,integrante 2 e integrante 3 son diferentes?
 
-Bien podemos entender que la forma en que la mayoría de veces las personas se comunican es por medio de la voz, en donde un emisor, en este caso una persona, comienza a realizar sonidos los cuales son enviados por un medio, en este caso el aire, para finalmente ser recibidos por un receptor. Posteriormente el receptor por medio de su oído, recibe esa información y la procesa, con esa información procede a realizar una acción o a responder a dicha señal. Aunque para nosotros sea muy natural comunicarnos con otras personas, bien prestando atención, hablar y escuchar es un proceso muy complejo que hemos desarrollado muy bien a lo largo de la evolución. Para responder correctamente a la duda, hay que adentrarse en conceptos naturales y entender cómo es que podemos generar primeramente ese sonido que se genera al hablar. Todo ser humano naturalmente nace con unos pliegues en una parte de la garganta llamada laringe, estos pliegues junto con el aire de nuestros pulmones son los responsables de generar el sonido. Estos pliegues o cuerdas vocales varían de tono, ya sea altos o agudos dependiendo de cuan tensada están. Por ejemplo la voz naturalmente de las mujeres es más aguda ya que estos pliegues están más tensos, a diferencia de la voz de los hombres que es más grave. También debemos ver que todas las voces que hemos escuchado a lo largo de la vida son diferentes, ya esto depende de la genética en la forma de esos pliegues y otros factores genéticos.
+# Proyecto Autrum
 
-Una vez que generamos el sonido, este como ya lo mencionamos, viaja por el aire y llega hasta el receptor. Existen ocasiones en las cuáles estos sonidos no llegan correctamente al receptor, eso significa que hay algo durante la transmisión que perturba el medio por donde viaja ese sonido. Pensemos que si sabemos que el sonido viaja por el aire, entonces significa que cualquier otro puede hacerlo ya que no hay algo en la naturaleza que me aisle sólo esa parte del aire para que viaje sólo ese sonido. Consecuentemente la mayoría de las veces van a existir perturbaciones durante la transmisión de ese sonido, por ejemplo: hablar con una persona dentro de un un estadio lleno de personas durante la celebración de un gol, en este caso hablar con la persona sería ineficaz por la cantidad de perturbación a los alrededores. De lo enterior lo que hay que rescatar es que al generar un mensaje existe la posibilidad de que ese mensaje sufra distorción haciendo que el mensaje no llegue correctamente. Sin embargo no solo lo anterior afectaría el mensaje, sino que otro ejemplo de problema sería la atenuación, como cuando el receptor está tan lejos, que aunque no exista forma de perturbar el mensaje y que aunque nosotros estemos gritándolo con todo el aire,no haya forma que se logre llegar la información al receptor.
+<b>Estudiantes:</b><br>
+Jonder Hernández Gutiérrez - 2018203660<br>
+Juan Fernández Hidalgo - 2017100691 <br>
+Roy Chavarría Garita - 2018034199 <br>
 
-Hoy en día utilizamos mucho los dispositivos electrónicos para comunicarnos, algo que hay que observar es cuando notamos una leve diferencia entre la voz de una persona cuando hablamos frente a frente y cuando la escuchamos por medio de un dispositivo diguital. Esto ocurre ya que estos dispositivos no captan todo el proceso que debemos hacer para generarla sino que solo capta lo que recibe por el aire, o sea las ondas. Lo bueno de los dispositivos es que pueden tomar esas ondas y señales y poder manipuarlas de muchas formas, por ejemplo una aplicación que haga nuestra voz más grave o más aguda. Actualmente estas ediciones sobre esas ondas se utilizan mucho hoy en día como por ejemplo en la industria de la música para eliminar inperfecciones después de grabar una canción, o también mejorar el cómo se escucha la voz del o la cantante.
+---
 
-Como mencionamos anteriormente, esas ondas que se propagan por el aire, podemos tomarlas y modificarlas a nuestro gusto, pero además también esas ondas sirven para poder transmitir información, esto lo hacemos modificandola a nuestro gusto y recibiendo esa modificación para procesarla y extraer esa información. De la anterior forma es como trabaja las señales inalámbricas, enviado y recibiendo ondas con información por medio del aire, por eso podemos estar hablando por teléfono con un celular sin necesidad de conectarlo a ningún cable. Entonces cabe destacar que básicamente se abstrajo todo el sistema complejo de poder generar, enviar, recibir y procesar que el ser humano posee y lo convertimos en uno o varios objetos manipulables.
+## 1 Instrucciones de instalación
 
-Retomando lo que se ha presentado y la pregunta de porqué las 3 voces son diferentes, la voz humana se puede asemejar a una huella dactilar, la cual no hay otra persona que tenga una igual. Aunque tengamos todos una lengua, cuerdas vocales, garganta, pulmones etc, cada persona tenemos características únicas que son dadas dependiendo de nuestra configuración de ADN, por ejemplo tenemos una lengua pero esta puede ser un poco más grande o más pequeña, nuestras cuerdas vocales pueden tener distintas dimensiones, nuestra garganta también tiene diferentes tamaños, etc. Como todas estas partes son diferentes, también los sonidos generados en conjunto por las mismas consecuentemente lo serán. Por lo tanto podemos decir que cada ser humano a como tiene diferente rasgos faciales, huellas dactilares y características, consecuentemente el cómo se escucha la voz de cada persona, o en este caso la de cada integrante, dependerá de las características que la generan, por lo tanto cada uno tendrá una voz única y distingible.  
+### 1.1 Bibliotecas
 
+Para utilizar correctamente la aplicación Autrum, debe de instalar las siguientes bibliotecas con los siguientes comandos:
+<i>
+> sudo apt install python3-pip  
+> pip3 install PyAudio  
+> pip3 install supyr-struct  
+> pip3 install matplotlib  
+> pip3 install Arrays  
+> pip3 install Wave  
+> pip3 install threaded  
+> pip3 install os-sys  
+> pip3 install pynput  
+> pip3 install python-time  
+> pip3 install pickle5  
+</i>
+
+## 2 El programa
+
+### 2.1 Variables globales mas relevantes
+
+1. chunk_size: Esta variable define el tamaño de los trozos del audio en que este será graficado en la aplicación 
+2. savedData: Este es un arreglo usado para guardar todos los frames usados para la graficación del audio para su posterior guardado.
+3. rate
+
+### 2.2 Módulos
+
+1. Menu 
+2. Analizador
+3. Guardado de datos
+4. Reproductor
+
+## Controles para usar Autrum
+
+### Iniciar programa
+Para iniciar el programa se usa el comando:  
+```python3 Autrum.py```
+
+### Controles
+
+#### Menu principal
+![Menu](img/menu.png "a")
+Como se observa en la imagen anterior, podemos elegir la opción de analizar presionando la tecla número 1, la opción del reproductor con la tecla número 2 o si queremos salir y cerrar el programa, selecionamos la tecla número 3.
+
+#### Analizador
+Cuando se está graficando ya sea al momento de analizar o reproducir, podemos interactuar con el programa con las siguientes teclas: 
+- Tecla i: Inicia la grabación en el modo de Analizador.
+
+- Tecla P: Pausa la grabación o la reproducción.
+
+- Tecla D: Detiene la grabación.
+
+# Referencias:
+1. Farhan, M., 2020. Latest Spectrum Analyser Using Python | Part-2. Deep Focus. Disponible en: [https://fazals.ddns.net/spectrum-analyser-part-2](https://fazals.ddns.net/spectrum-analyser-part-2)
+2. De Langen, J., 2020. Playing and Recording Sound in Python – Real Python. Realpython.com. Disponible en: [https://realpython.com/playing-and-recording-sound-python](https://realpython.com/playing-and-recording-sound-python)
+3. Código Pitón. 2022. Cómo Detectar la Pulsación de una Tecla en Python - Código Pitón. Disponible en: [https://www.codigopiton.com/detectar-pulsacion-de-tecla-en-python](https://www.codigopiton.com/detectar-pulsacion-de-tecla-en-python)
+
+
+>imagen de solicitud de nombre del archivo
+>se explica que es lo que se crea y la reproduccion
+>si queremos otra imagen del archivo reproduciendose
