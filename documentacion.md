@@ -37,27 +37,32 @@ Para utilizar correctamente la aplicación Autrum, debe de instalar las siguient
 
 ### 2.2 Módulos
 
-1. Menu 
-2. Analizador
-3. Guardado de datos
-4. Reproductor
+1. Menu: Compuesto por las funciones 'Pulsa','Suelta','MenuPulsa' y 'MenuSuelta' está encargado de cambiar el estado de operación del programa a partir de las entradas dadas por el usuario.
 
-## Controles para usar Autrum
+2. Analizador: Compuesto por la función 'Analizador' está encargado de tomar la entrada de audio y graficarla en tiempo real, además de esto debe estar preparado para grabar los frames y el audio de entrada.
 
-### Iniciar programa
+
+3. Guardado de datos: Compuesto por la función 'guardar' está encargado de comprimir y guardar los datos en un archivo con la extensión 'atm', además de anunciar su estado de éxito con la dirección del archivo.
+
+4. Reproductor: Compuesto por la función 'Reproductor' y 'playFrames' se encarga de leer el archivo atm recopilar los datos en este y reproducir el audio y sus frames.
+
+## 3 Como usar el programa
+
+### 3.1 Iniciar programa
 
 Para iniciar el programa se usa el comando:  
 ```python3 Autrum.py```
 
-### Controles
+### 3.2 Controles
 
-#### Menu principal
+#### 3.2.3 Menu principal
 
-![Menu](img/menu.png "a")
+![Menu](img/menu.png "a")  
 Como se observa en la imagen anterior, podemos elegir la opción de analizar presionando la tecla número 1, la opción del reproductor con la tecla número 2 o si queremos salir y cerrar el programa, selecionamos la tecla número 3.
 
-#### Analizador
+#### 3.2.4 Analizador
 
+![Menu](img/analizador.png "a")  
 Cuando se está graficando ya sea al momento de analizar o reproducir, podemos interactuar con el programa con las siguientes teclas:
 
 - Tecla i: Inicia la grabación en el modo de Analizador.
@@ -66,13 +71,18 @@ Cuando se está graficando ya sea al momento de analizar o reproducir, podemos i
 
 - Tecla D: Detiene la grabación.
 
+#### 3.2.5 Reproductor
+![reproductor](img/reproductor.png "a")  
+La anterior imagen muestra un espacio para poder ingresar el nombre del archivo Autrum, se pide el nombre para cargar y reproducir un archivo Autrum anteriormente creado.
+
+![reproduccion](img/reproducir.png "a")  
+En la anterior imagen se puede ver como se reproduce el audio previamente guardado.
+
+![guardado](img/guardado.png "a")  
+La anterior imagen muestra un espacio para poder ingresar el nombre del archivo Autrum, se pide el nombre para guardar un archivo en formato Autrum.
+
 # Referencias:
 
 1. Farhan, M., 2020. Latest Spectrum Analyser Using Python | Part-2. Deep Focus. Disponible en: [https://fazals.ddns.net/spectrum-analyser-part-2](https://fazals.ddns.net/spectrum-analyser-part-2)
 2. De Langen, J., 2020. Playing and Recording Sound in Python – Real Python. Realpython.com. Disponible en: [https://realpython.com/playing-and-recording-sound-python](https://realpython.com/playing-and-recording-sound-python)
-3. Código Pitón. 2022. Cómo Detectar la Pulsación de una Tecla en Python - Código Pitón. Disponible en: [https://www.codigopiton.com/detectar-pulsacion-de-tecla-en-python](https://www.codigopiton.com/detectar-pulsacion-de-tecla-en-python)
-
-
->imagen de solicitud de nombre del archivo
-
->La anterior imagen muestra un espacio para poder ingresar el nombre del archivo Autrum, se ingresa el nombre luego se presiona ENTER y automáticamente se guarda.
+3. Código Pitón. 2022. Cómo Detectar la Pulsación de una Tecla en Python - Código Pitón. Disponible en: [https://www.codigopiton.com/detectar-pulsacion-de-tecla-en-python](https://www.codigopiton.com/detectar-pulsacion-de-tecla-en-python) 
