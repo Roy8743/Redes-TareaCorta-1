@@ -33,7 +33,7 @@ Para utilizar correctamente la aplicación Autrum, debe de instalar las siguient
 
 1. chunk_size: Esta variable define el tamaño de los trozos del audio en que este será graficado en la aplicación 
 2. savedData: Este es un arreglo usado para guardar todos los frames usados para la graficación del audio para su posterior guardado.
-3. RATE: 
+3. RATE: Es la frecuencia de muestreo, o sea, el número de muestras por unidad de tiempo.
 
 ### 2.2 Módulos
 
@@ -45,16 +45,19 @@ Para utilizar correctamente la aplicación Autrum, debe de instalar las siguient
 ## Controles para usar Autrum
 
 ### Iniciar programa
+
 Para iniciar el programa se usa el comando:  
 ```python3 Autrum.py```
 
 ### Controles
 
 #### Menu principal
+
 ![Menu](img/menu.png "a")
 Como se observa en la imagen anterior, podemos elegir la opción de analizar presionando la tecla número 1, la opción del reproductor con la tecla número 2 o si queremos salir y cerrar el programa, selecionamos la tecla número 3.
 
 #### Analizador
+
 Cuando se está graficando ya sea al momento de analizar o reproducir, podemos interactuar con el programa con las siguientes teclas: 
 - Tecla i: Inicia la grabación en el modo de Analizador.
 
@@ -69,5 +72,5 @@ Cuando se está graficando ya sea al momento de analizar o reproducir, podemos i
 
 
 >imagen de solicitud de nombre del archivo
->La a
+>La anterior imagen muestra un espacio para poder ingresar el nombre del archivo Autrum, se ingresa el nombre luego s
 >si queremos otra imagen del archivo reproduciendose
