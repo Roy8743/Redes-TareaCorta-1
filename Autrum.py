@@ -10,7 +10,6 @@ from pynput import keyboard as kb
 import time
 import pickle
 import math
-import threading
 
 iniciar = 0
 detener = 0
