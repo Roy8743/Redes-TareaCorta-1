@@ -33,7 +33,7 @@ Para utilizar correctamente la aplicación Autrum, debe de instalar las siguient
 
 1. chunk_size: Esta variable define el tamaño de los trozos del audio en que este será graficado en la aplicación 
 2. savedData: Este es un arreglo usado para guardar todos los frames usados para la graficación del audio para su posterior guardado.
-3. rate
+3. RATE: 
 
 ### 2.2 Módulos
 
@@ -69,5 +69,5 @@ Cuando se está graficando ya sea al momento de analizar o reproducir, podemos i
 
 
 >imagen de solicitud de nombre del archivo
->se explica que es lo que se crea y la reproduccion
+>La a
 >si queremos otra imagen del archivo reproduciendose
